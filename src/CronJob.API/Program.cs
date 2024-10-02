@@ -1,11 +1,28 @@
+using CronJob.API.Services.Interfaces;
+using CronJob.API.Services.JobScheduler;
+using Quartz;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+
+builder.Services.AddQuartz(q =>
+{
+    q.UsePersistentStore(options =>
+    {
+        options.UseSqlServer("connectionString");
+    });
+});
+
+builder.Services.AddQuartzHostedService(q => 
+    q.WaitForJobsToComplete = true);
+
+builder.Services.AddScoped<IJobSchedulerService, JobSchedulerService>();
+
 
 var app = builder.Build();
 
